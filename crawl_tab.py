@@ -14,14 +14,24 @@ PARM_EVASION = dict(none=0, robe=0, steam=0, leather=-40, acid=-50, ring=-70, sw
                     shadow=-150, storm=-150, plate=-180, crystal_plate=-230, golden=-230,
                     cloak=0, gloves=0, scarf=0, helmet=0, hat=0, boots=0, barding=-60,
                     buckler=-50, kite=-100, tower=-150)
+
 PARM_AC = dict(none=0, robe=2, steam=5, leather=3, acid=6, ring=5, swamp=7,
                     quicksilver=9, scale=6, pearl=10, chain=8,
                     shadow=11, storm=10, plate=10, crystal_plate=14, golden=12,
                     cloak=1, gloves=1, scarf=0, helmet=1, hat=0, boots=1, barding=4,
                     buckler=3, kite=8, tower=13)
 
-PWPN_SPEED = dict(war_axe=15, battleaxe=17, broad_axe=16, executioners_axe=19, halberd=15, hand_axe=13,
-                  spear=11, partisan=17, trident=13, demon_trident=13, bardiche=19, glaive=17, trishula=13, 
+PWPN_DAMAGE = dict(war_axe=11, battleaxe=15, broad_axe=13, executioners_axe=18, hand_axe=7,
+                  spear=6, partisan=14, trident=9, demon_trident=12, bardiche=18, glaive=15, trishula=13, halberd=13,
+                  dagger=4, short_sword=5, quick_blade=4, rapier=7, athame=7,
+                  demon_blade=13, falchion=8, long_sword=10, scimitar=12, triple_sword=19, great_sword=17, double_sword=15, eudemon_blade=14,
+                  mace=8, flail=10, morningstar=13, eveningstar=15, demon_whip=11, giant_spiked_club=22, giant_club=20, great_mace=17, dire_flail=13, sacred_scourge=12, club=5,
+                  sling=7, shortbow=8, orcbow=11, longbow=14, arbalest=16, triple_crossbow=23, hand_cannon=16,
+                  staff=5, quarterstaff=10, lajatang=16
+                  )
+
+PWPN_SPEED = dict(war_axe=15, battleaxe=17, broad_axe=16, executioners_axe=19, hand_axe=13,
+                  spear=11, partisan=17, trident=13, demon_trident=13, bardiche=19, glaive=17, trishula=13, halberd=15, 
                   dagger=10, short_sword=10, quick_blade=15, rapier=12, athame=13,
                   demon_blade=13, falchion=13, long_sword=14, scimitar=14, triple_sword=18, great_sword=17, double_sword=15, eudemon_blade=12,
                   mace=14, flail=14, morningstar=15, eveningstar=15, demon_whip=11, giant_spiked_club=18, giant_club=16, great_mace=17, dire_flail=13, sacred_scourge=11, club=13,
@@ -784,6 +794,8 @@ def attack_delay_with(you):
 
     return max((attk_delay * you["player_speed"] / 10), 1)
     
+def player_regen(you):
+    return (20 + you["HP"] // 6) / 100 + you["bonus_regen"]
 
 def get_real_mp(you):
     scale = 100
@@ -824,7 +836,7 @@ def player_mp_regen(you):
 
     regen_amount += you["bonus_MP_regen"]
 
-    return regen_amount
+    return regen_amount / 100
 
 def get_real_hp(you):
 
@@ -840,6 +852,77 @@ def get_real_hp(you):
     hitp *= you["HP_multiplier"]
 
     return max(1, hitp)
+
+def brand_adjust_weapon_damage(base_dam, brand, random):
+    if brand != "heavy":
+        return base_dam
+    return CU.div_rand_round(base_dam * 9, 5) if random else base_dam * 9 // 5
+
+    
+def weapon_uses_strength(wpn_skill):
+    return wpn_skill not in ("Long Blades", "Short Blades", "Ranged")
+    
+def stat_modify_damage(you, damage, wpn_skill):
+    # At 10 strength, damage is multiplied by 1.0
+    # Each point of strength over 10 increases this by 0.025 (2.5%),
+    # strength below 10 reduces the multiplied by the same amount.
+    # Minimum multiplier is 0.01 (1%) (reached at -30 str).
+    # Ranged weapons and short/long blades use dex instead.
+    use_str = weapon_uses_strength(wpn_skill)
+    attr = you["STR"] if use_str else you["DEX"]
+    damage *= max(1.0, 75 + 2.5 * attr)
+    damage //= 100
+
+    return damage
+    
+def apply_weapon_skill(you, damage, wpn_skill, random):
+    sklvl = you["skills"][wpn_skill] * 100
+    damage *= 2500 + CU.maybe_random2(sklvl + 1, random)
+    damage //= 2500
+    return damage;
+
+def apply_fighting_skill(you, damage, aux, random):
+    base = 40 if aux else 30
+    sklvl = you["skills"]["Fighting"] * 100
+
+    damage *= base * 100 + CU.maybe_random2(sklvl + 1, random)
+    damage //= base * 100
+
+    return damage
+
+def damage_rating(you):
+    # FIXME: Throwing damage has not been implemented
+    # FIXME: UC damage has not been implemented
+    base_dam = PWPN_DAMAGE[you["weapon_type"]]
+
+    # This is just SPWPN_HEAVY.
+    post_brand_dam = brand_adjust_weapon_damage(base_dam, you["brand"], False)
+    heavy_dam = post_brand_dam - base_dam
+    extra_base_dam = heavy_dam
+    skill = item_attack_skill(you["weapon_type"])
+
+    stat_mult = stat_modify_damage(you, 100, skill)
+    use_str = weapon_uses_strength(skill)
+    # Throwing weapons and UC only get a damage mult from Fighting skill,
+    # not from Throwing/UC skill.
+    use_weapon_skill = (you["weapon_type"] != "UC")
+    weapon_skill_mult = apply_weapon_skill(you, 100, skill, False) if use_weapon_skill else 100
+    skill_mult = apply_fighting_skill(you, weapon_skill_mult, False, False)
+
+    # slay bonuses and weapon plusses both improve to_hit and damage the same way
+    # so I'm rolling both of them into you["slaying"]
+    slaying = you["slaying"]
+    plusses = slaying
+
+    DAM_RATE_SCALE = 100
+    rating = (base_dam + extra_base_dam) * DAM_RATE_SCALE
+    rating = stat_modify_damage(you, rating, skill)
+    if (use_weapon_skill):
+        rating = apply_weapon_skill(you, rating, skill, False)
+    rating = apply_fighting_skill(you, rating, False, False)
+    rating //= DAM_RATE_SCALE
+    rating += plusses
+    return rating
     
 params = dict()
 params["gnoll"] = dict(

@@ -77,10 +77,11 @@ def find_best_skill(race, monster, bang, configs):
 
             player["EV"] = CT.evasion(player, 1)
             player["SH"] = CT.player_displayed_shield_class(player, 1)
+            player["damage"] = CT.damage_rating(player)
             player["weapon_delay"] = CT.attack_delay_with(player) / 10
-            player["regen"] = (20 + player["HP"] / 6) / 100 + player["bonus_regen"]
+            player["regen"] = CT.player_regen(player)
             player["MP"] = CT.get_real_mp(player)
-            player["MP_regen"] = 7 + player["MP"] / 2 + player["bonus_MP_regen"]
+            player["MP_regen"] = CT.player_mp_regen(player)
 
             if config["spirit"]:
                 # total hack
@@ -99,15 +100,19 @@ def find_best_skill(race, monster, bang, configs):
     result_df = pd.DataFrame(result)
     result_df["score"] = 10 * result_df["kills"] + result_df["turns"]
     result_df = result_df.sort_values(by="score", ascending=False)
+    skill_df = pd.DataFrame(result_df["skills"].tolist(), index=result_df.index)
+    del result_df["skills"]
+    result_df = pd.merge(result_df, skill_df, left_index=True, right_index=True)
     print()
     print(result_df)
-    
+    return df, result_df
+
 if __name__ == "__main__":
     # configurable inputs
     race = "Octopode"
     monster = CT.params["fire dragon"]
 
-    # The third values on each row set the target skill levels.
+    # The third value on each row set the target skill levels.
     # Below, we'll compute the amount of XP required to reach the target skill levels.
     # If no value is set, the program will find the skill level attainable for the same amount of XP.
     bang = [
