@@ -4,8 +4,10 @@ import numpy as np
 import pandas as pd
 import crawl_tab as CT
 import crawl_skills as CS
+
 pd.options.display.width = sys.maxsize
 pd.options.display.max_columns = None
+
 
 def find_best_skill(race, monster, bang, configs):
     # find the XP required to reach the target skill level
@@ -29,8 +31,21 @@ def find_best_skill(race, monster, bang, configs):
     # find the skill levels achievable for the same amount of XP
     result = list()
     for skill, level in skills.items():
-        if skill not in ("Fgt", "Arm", "Ddg", "Shd", "MF", "Axs", "Pla", "Stv", "UC",
-                         "SBl", "LBl", "Spc", "Inv"):
+        if skill not in (
+            "Fgt",
+            "Arm",
+            "Ddg",
+            "Shd",
+            "MF",
+            "Axs",
+            "Pla",
+            "Stv",
+            "UC",
+            "SBl",
+            "LBl",
+            "Spc",
+            "Inv",
+        ):
             # My simulator is not affected by the other skills, so we are blind to the effect
             # training these skills have on true EKTD/ETTD
             continue
@@ -49,7 +64,7 @@ def find_best_skill(race, monster, bang, configs):
 
     print(df, end="\n" * 2)
 
-    # Compute EKTD and ETTD for each config and for each skill 
+    # Compute EKTD and ETTD for each config and for each skill
     params = dict(N=10**4, num_swings=400)
     result = list()
     for row in configs[1:]:
@@ -87,13 +102,19 @@ def find_best_skill(race, monster, bang, configs):
                 # total hack
                 player["HP"] += player["MP"]
                 player["regen"] += player["MP_regen"]
-                
+
             # print(player)
-            
+
             kills, std_kills, turns, std_turns = CT.TAB(player, monster, **params)
-            observation = dict(config=config["name"], skill=skill_row.skill,
-                               skill_level=skill_row.target, kills=kills, std_kills=std_kills,
-                               turns=turns, std_turns=std_turns)
+            observation = dict(
+                config=config["name"],
+                skill=skill_row.skill,
+                skill_level=skill_row.target,
+                kills=kills,
+                std_kills=std_kills,
+                turns=turns,
+                std_turns=std_turns,
+            )
             observation.update(player)
             result.append(observation)
 
@@ -107,54 +128,59 @@ def find_best_skill(race, monster, bang, configs):
     print(result_df)
     return df, result_df
 
+
 if __name__ == "__main__":
     # configurable inputs
     race = "Octopode"
-    monster = CT.params["fire dragon"]
+    monster = CT.params["titan"]
 
     # The third value on each row set the target skill levels.
     # Below, we'll compute the amount of XP required to reach the target skill levels.
     # If no value is set, the program will find the skill level attainable for the same amount of XP.
+
     bang = [
-        ("skill", "current", "target", "skill_bonus"),
-        ("Fighting", 13, 18, 0),
-        ("Polearms", 14, "", 0),
-        ("Dodging", 9, "", 0),
-        ("Armour", 0, "", 0),
-        ("Shields", 10, "", 2),
-        ("Spellcasting", 2, "", 0),
-        ("Conjurations", 3, "", 0),
-        ("Necromancy", 2, "", 0),
-        ("Translocations", 10, "", 0),
-        ("Invocations", 9, "", 0),
-        ("Evocations", 5, "", 0),
+        ["skill", "current", "target", "skill_bonus"],
+        ["Fighting", 13, 18, 0],
+        ["Polearms", 14, "", 0],
+        ["Armour", 0, "", 0],
+        ["Dodging", 18, "", 0],
+        ["Shields", 19, "", 0],
+        ["Spellcasting", 2, "", 0],
+        ["Conjurations", 3, "", 0],
+        ["Necromancy", 2, "", 0],
+        ["Translocations", 10, "", 0],
+        ["Invocations", 10, "", 0],
+        ["Evocations", 8, "", 0],
     ]
+
     configs = [
-        ("name", "char"),
-        ("XL", 14),
-        ("STR", 19),
-        ("DEX", 23),
-        ("damage", 18),
-        ("slaying", 0),
-        ("brand", "none"),
-        ("weapon_type", "trident"),
-        ("armour_type", "none"),
-        ("aux_armour", ""),
-        ("shield_type", "kite"),
-        ("AC_multiplier", 1),
-        ("AC_bonus", 0),
-        ("EV_bonus", 0),
-        ("SH_bonus", 0),
-        ("bonus_regen", 0),
-        ("bonus_MP_regen", 0),
-        ("bonus_MP", 0),
-        ("body_size", "medium"),
-        ("SPARM_ARCHERY", 0),
-        ("MUT_STURDY_FRAME", 0),
-        ("spirit", 0),
-        ("player_speed", 10),
-        ("form", "none"),
+        ("name", "dex", "evasion"),
+        ("XL", 22, 22),
+        ("STR", 45, 39),
+        ("DEX", 27, 27),
+        ("slaying", 8, 8),
+        ("brand", "flaming", "flaming"),
+        ("weapon_type", "demon_trident", "demon_trident"),
+        ("armour_type", "none", "none"),
+        ("aux_armour", "", ""),
+        ("shield_type", "tower", "tower"),
+        ("AC_multiplier", 1, 1),
+        ("AC_bonus", 0, 0),
+        ("EV_bonus", 5, 10),
+        ("SH_bonus", 7, 7),
+        ("HP_bonus", 0, 0),
+        ("HP_multiplier", 1, 1),
+        ("bonus_regen", 0, 0),
+        ("bonus_MP_regen", 0, 0),
+        ("bonus_MP", 0, 0),
+        ("body_size", "medium", "medium"),
+        ("SPARM_ARCHERY", 0, 0),
+        ("MUT_STURDY_FRAME", 0, 0),
+        ("spirit", 0, 0),
+        ("player_speed", 10, 10),
+        ("form", "none", "none"),
     ]
+
     configs = list(zip(*configs))
 
     find_best_skill(race, monster, bang, configs)
