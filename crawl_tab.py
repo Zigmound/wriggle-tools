@@ -659,7 +659,7 @@ def _player_evasion(you, final_scale):
         - adjusted_body_armour_penalty(you, scale)
         - adjusted_shield_penalty(you, scale)
         - _player_aux_evasion_penalty(you, scale)
-        + you["EV_bonus"])
+        + you["EV_bonus"] * scale)
 
     if (you["form"] == "statue"):
         natural_evasion = natural_evasion * 4 // 5
