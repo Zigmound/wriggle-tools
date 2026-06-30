@@ -87,8 +87,7 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
             player["total_parm_ac"] = CT.PARM_AC.get(player["armour_type"], 0)
             for item in player["aux_armour"]:
                 player["total_parm_ac"] += CT.PARM_AC[item]
-            player["AC"] = CT.base_ac(player, 1)
-
+            player["AC"] = CT.base_ac(player, 100)
             player["EV"] = CT.evasion(player, 1)
             player["SH"] = CT.player_displayed_shield_class(player, 1)
             player["damage"] = CT.damage_rating(player)
@@ -104,9 +103,10 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
 
             # print(player)
 
-            kills, std_kills, turns, std_turns = CT.TAB(player, monster, N=N, num_swings=num_swings)
+            kills, std_kills, turns, std_turns = CT.TAB(
+                player, monster, N=N, num_swings=num_swings
+            )
             observation = dict(
-                config=config["name"],
                 skill=skill_row.skill,
                 skill_level=skill_row.target,
                 kills=kills,
