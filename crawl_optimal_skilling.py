@@ -9,7 +9,7 @@ pd.options.display.width = sys.maxsize
 pd.options.display.max_columns = None
 
 
-def find_best_skill(race, monster, bang, configs):
+def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
     # find the XP required to reach the target skill level
     CS.you = CS.Player(race)
     bfxb = pd.DataFrame(bang[1:], columns=bang[0])
@@ -65,7 +65,6 @@ def find_best_skill(race, monster, bang, configs):
     print(df, end="\n" * 2)
 
     # Compute EKTD and ETTD for each config and for each skill
-    params = dict(N=10**4, num_swings=400)
     result = list()
     for row in configs[1:]:
         for idx, skill_row in df.iterrows():
@@ -105,7 +104,7 @@ def find_best_skill(race, monster, bang, configs):
 
             # print(player)
 
-            kills, std_kills, turns, std_turns = CT.TAB(player, monster, **params)
+            kills, std_kills, turns, std_turns = CT.TAB(player, monster, N=N, num_swings=num_swings)
             observation = dict(
                 config=config["name"],
                 skill=skill_row.skill,
