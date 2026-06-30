@@ -759,8 +759,8 @@ def weapon_min_delay_skill(you):
 def item_attack_skill(weapon_type):
     return ("Axes" if weapon_type in ("war_axe", "battleaxe", "broad_axe", "halberd", "hand_axe") else
             "Polearms" if weapon_type in ("spear", "trident", "demon_trident", "partisan") else
-            "Short blades" if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier") else
-            "Long blades" if weapon_type in ("demon_blade", "falchion", "long_sword", "scimitar") else
+            "Short Blades" if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier") else
+            "Long Blades" if weapon_type in ("demon_blade", "falchion", "long_sword", "scimitar") else
             "Maces & Flails" if weapon_type in ("mace", "flail", "morningstar", "eveningstar", "demon_whip") else
             "Ranged" if weapon_type in ("sling", "shortbow", "orcbow", "longbow", "arbalest") else
             "Staves" if weapon_type in ("staff", "quarterstaff", "lajatang") else
@@ -811,12 +811,13 @@ def get_real_mp(you):
     enp += highest_skill + min(8 * scale, min(highest_skill, scaled_xl)) // 2
 
     # FIXME: MUT_HIGH_MAGIC / MUT_LOW_MAGIC not implemented
+    enp //= scale
     
     enp += CS._spec_stats.loc[you["race"], "MP"]
 
     # FIXME: mp_max_adj not implemented. What is "rotted" base?
     enp += you["bonus_MP"] * scale
-    enp = enp // 100
+
     if you["brand"] == "antimagic":
         enp /= 3
     enp = max(enp, 0)
@@ -845,7 +846,7 @@ def get_real_hp(you):
              + (you["skills"]["Fighting"] * 3 + 1) // 2)
 
     # Racial modifier.
-    hitp *= 10 + CS.you.hp_modifier
+    hitp *= 10 + CS.you.hp_modifier * 10
     hitp //= 10
 
     hitp += you["HP_bonus"]
