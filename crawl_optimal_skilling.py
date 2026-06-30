@@ -101,8 +101,6 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
                 player["HP"] += player["MP"]
                 player["regen"] += player["MP_regen"]
 
-            # print(player)
-
             kills, std_kills, turns, std_turns = CT.TAB(
                 player, monster, N=N, num_swings=num_swings
             )
@@ -123,6 +121,31 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
     skill_df = pd.DataFrame(result_df["skills"].tolist(), index=result_df.index)
     del result_df["skills"]
     result_df = pd.merge(result_df, skill_df, left_index=True, right_index=True)
+    columns = [
+        "score",
+        "name",
+        "skill",
+        "skill_level",
+        "kills",
+        "std_kills",
+        "turns",
+        "std_turns",
+        "XL",
+        "STR",
+        "DEX",
+        "HP",
+        "AC",
+        "EV",
+        "SH",
+        "damage",
+        "weapon_delay",
+        "regen",
+        "MP",
+        "MP_regen",
+    ]
+    anything_else = result_df.columns.difference(columns)
+    columns = columns + anything_else.tolist()
+    result_df = result_df[columns]
     print()
     print(result_df)
     return df, result_df
