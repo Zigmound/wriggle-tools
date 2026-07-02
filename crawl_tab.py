@@ -816,7 +816,7 @@ def get_real_mp(you):
     enp += CS._spec_stats.loc[you["race"], "MP"]
 
     # FIXME: mp_max_adj not implemented. What is "rotted" base?
-    enp += you["bonus_MP"] * scale
+    enp += you["bonus_MP"]
 
     if you["brand"] == "antimagic":
         enp /= 3
