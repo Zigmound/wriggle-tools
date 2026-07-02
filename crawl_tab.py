@@ -757,12 +757,12 @@ def weapon_min_delay_skill(you):
 
 
 def item_attack_skill(weapon_type):
-    return ("Axes" if weapon_type in ("war_axe", "battleaxe", "broad_axe", "halberd", "hand_axe") else
-            "Polearms" if weapon_type in ("spear", "trident", "demon_trident", "partisan") else
-            "Short Blades" if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier") else
-            "Long Blades" if weapon_type in ("demon_blade", "falchion", "long_sword", "scimitar") else
-            "Maces & Flails" if weapon_type in ("mace", "flail", "morningstar", "eveningstar", "demon_whip") else
-            "Ranged" if weapon_type in ("sling", "shortbow", "orcbow", "longbow", "arbalest") else
+    return ("Axes" if weapon_type in ("war_axe", "battleaxe", "broad_axe", "hand_axe") else
+            "Polearms" if weapon_type in ("spear", "trident", "demon_trident", "partisan", "halberd", "bardiche", "glaive", "trishula", "halberd") else
+            "Short Blades" if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier", "athame") else
+            "Long Blades" if weapon_type in ("demon_blade", "falchion", "long_sword", "scimitar", "double_sword", "triple_sword", "great_sword", "eudemon_blade") else
+            "Maces & Flails" if weapon_type in ("mace", "flail", "morningstar", "eveningstar", "demon_whip", "giant_spiked_club", "giant_club", "great_mace", "dire_flail", "sacred_scourge", "club") else
+            "Ranged" if weapon_type in ("sling", "shortbow", "orcbow", "longbow", "arbalest", "triple_crossbow", "hand_cannon") else
             "Staves" if weapon_type in ("staff", "quarterstaff", "lajatang") else
             "Unknown weapon skill"
             )
