@@ -795,7 +795,7 @@ def attack_delay_with(you):
     return max((attk_delay * you["player_speed"] / 10), 1)
     
 def player_regen(you):
-    return (20 + you["HP"] // 6) / 100 + you["bonus_regen"]
+    return (20 + you["HP"] // 6) / 100 + you["regen_bonus"]
 
 def get_real_mp(you):
     scale = 100
@@ -816,7 +816,7 @@ def get_real_mp(you):
     enp += CS._spec_stats.loc[you["race"], "MP"]
 
     # FIXME: mp_max_adj not implemented. What is "rotted" base?
-    enp += you["bonus_MP"]
+    enp += you["MP_bonus"]
 
     if you["brand"] == "antimagic":
         enp /= 3
@@ -830,12 +830,12 @@ def player_mp_regen(you):
 
     # FIXME: MUT_MANA_REGENERATION not implemented -- affects Deep Elf
 
-    # Amulets and artefacts bonuses are rolled into bonus_MP_regen
+    # Amulets and artefacts bonuses are rolled into MP_regen_bonus
 
     # DUR_OOZE_REGEN not implemented
     # jelly_regen not implemented
 
-    regen_amount += you["bonus_MP_regen"]
+    regen_amount += you["MP_regen_bonus"]
 
     return regen_amount / 100
 
