@@ -8,16 +8,15 @@ import crawl_skills as CS
 pd.options.display.width = sys.maxsize
 pd.options.display.max_columns = None
 
-
-def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
+def bang_for_xp_buck(race, monster, target, configs):
     # find the XP required to reach the target skill level
     CS.you = CS.Player(race)
-    # bfxb -> bang for XP buck
-    bfxb = pd.DataFrame(bang[1:], columns=bang[0])
-    bfxb["skl"] = [CS.long_to_short[val] for val in bfxb["skill"].values]
-    skills = dict(zip(bfxb["skl"], bfxb["current"].values))
+
+    df = pd.DataFrame(target[1:], columns=target[0])
+    df["skl"] = [CS.long_to_short[val] for val in df["skill"].values]
+    skills = dict(zip(df["skl"], df["current"].values))
     threshold_XP = 0
-    for idx, row in bfxb.iterrows():
+    for idx, row in df.iterrows():
         if row.target:
             skills2 = skills.copy()
             skills2[row.skl] = row.target
@@ -27,7 +26,6 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
             # Find an amount of XP which is comfortably within
             # the range needed to achieve the target skill level
             threshold_XP += 0.8 * min_XP + 0.2 * max_XP
-    print(f"threshold_XP: {threshold_XP:.0f}")
 
     # find the skill levels achievable for the same amount of XP
     result = list()
@@ -57,18 +55,20 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
             else:
                 skills2[skill] -= 0.1
                 break
-        skills2[skill] += bfxb.loc[bfxb["skl"] == skill, "skill_bonus"]
+        skills2[skill] += df.loc[df["skl"] == skill, "skill_bonus"]
         skills2[skill] = min(skills2[skill].item(), 27)
         result.append((skill, skills[skill], skills2[skill]))
-    df = pd.DataFrame(result, columns=["skill", "current", "target"])
-    df["diff"] = df["target"] - df["current"]
 
-    print(df, end="\n" * 2)
+    bfxb = pd.DataFrame(result, columns=["skill", "current", "target"])
+    bfxb["diff"] = bfxb["target"] - bfxb["current"]
+    return bfxb, skills
 
+def find_best_skill(race, monster, target, configs, N=10**4, num_swings=400):
+    bfxb, skills = bang_for_xp_buck(race, monster, target, configs)
     # Compute EKTD and ETTD for each config and for each skill
     result = list()
     for row in configs[1:]:
-        for idx, skill_row in df.iterrows():
+        for idx, skill_row in bfxb.iterrows():
             player = dict(
                 gdr=True,
             )
@@ -145,9 +145,7 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
     anything_else = result_df.columns.difference(columns)
     columns = columns + anything_else.tolist()
     result_df = result_df[columns]
-    print()
-    print(result_df)
-    return df, result_df
+    return bfxb, result_df
 
 
 if __name__ == "__main__":
@@ -159,7 +157,7 @@ if __name__ == "__main__":
     # Below, we'll compute the amount of XP required to reach the target skill levels.
     # If no value is set, the program will find the skill level attainable for the same amount of XP.
 
-    bang = [
+    target = [
         ["skill", "current", "target", "skill_bonus"],
         ["Fighting", 13, 18, 0],
         ["Polearms", 14, "", 0],
@@ -204,4 +202,6 @@ if __name__ == "__main__":
 
     configs = list(zip(*configs))
 
-    find_best_skill(race, monster, bang, configs)
+    skill_df, result_df = find_best_skill(race, monster, target, configs)
+    print(skill_df, end="\n" * 2)
+    print(result_df)
