@@ -12,6 +12,7 @@ pd.options.display.max_columns = None
 def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
     # find the XP required to reach the target skill level
     CS.you = CS.Player(race)
+    # bfxb -> bang for XP buck
     bfxb = pd.DataFrame(bang[1:], columns=bang[0])
     bfxb["skl"] = [CS.long_to_short[val] for val in bfxb["skill"].values]
     skills = dict(zip(bfxb["skl"], bfxb["current"].values))
@@ -116,13 +117,11 @@ def find_best_skill(race, monster, bang, configs, N=10**4, num_swings=400):
             result.append(observation)
 
     result_df = pd.DataFrame(result)
-    result_df["score"] = 10 * result_df["kills"] + result_df["turns"]
-    result_df = result_df.sort_values(by="score", ascending=False)
+    result_df = result_df.sort_values(by="kills", ascending=False)
     skill_df = pd.DataFrame(result_df["skills"].tolist(), index=result_df.index)
     del result_df["skills"]
     result_df = pd.merge(result_df, skill_df, left_index=True, right_index=True)
     columns = [
-        "score",
         "name",
         "skill",
         "skill_level",
