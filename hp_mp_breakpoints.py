@@ -9,8 +9,7 @@ pd.options.display.width = sys.maxsize
 pd.options.display.max_columns = None
 pd.options.display.max_rows = sys.maxsize
 
-if __name__ == "__main__":
-    race = "Human"
+def breakpoints(race):
     you = {
         "skills": {"Fighting": 0, "Spellcasting": 3.3, "Invocations": 0},
         "XL": 1,
@@ -24,13 +23,12 @@ if __name__ == "__main__":
     XL = range(1, 28)
 
     CS.you = CS.Player(race)
-
+    result = list()
     for skl, stat, calc in [
         ("Fighting", "HP", CT.get_real_hp),
         ("Spellcasting", "MP", CT.get_real_mp),
     ]:
         data = list()
-        print(f"{race} {skl} breakpoints (columns represent XL)")
         for xli in XL:
             you["XL"] = xli
             previous = 0
@@ -42,6 +40,13 @@ if __name__ == "__main__":
                     previous = statval
         df = pd.DataFrame(data, columns=["XL", skl, stat])
         df = df.pivot_table(index=skl, columns="XL", values=stat)
+        result.append((race, skl, df))
+    return result
+    
+if __name__ == "__main__":
+    result = breakpoints("Human")
+    for race, skl, df in result:
+        print(f"{race} {skl} breakpoints (columns represent XL)")
         df = df.fillna(-1).astype(int).astype(str)
         for col in df:
             df[col] = df[col].str.replace("-1", "")
