@@ -123,7 +123,8 @@ def orgtable_to_dataframe(txt):
 _spec_skills = orgtable_to_dataframe(species_skill_aptitude)
 _spec_stats = orgtable_to_dataframe(species_stats)
 
-NUM_SPECIES = len(_spec_skills.index)
+SPECIES = _spec_stats.index
+NUM_SPECIES = len(SPECIES)
 SKILLS = _spec_skills.columns.difference(["HP%", "MP", "Exp", "WL"])
 NUM_SKILLS = len(SKILLS)
 UNUSABLE_SKILL = -99
