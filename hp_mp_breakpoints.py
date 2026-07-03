@@ -40,13 +40,13 @@ def breakpoints(race):
                     previous = statval
         df = pd.DataFrame(data, columns=["XL", skl, stat])
         df = df.pivot_table(index=skl, columns="XL", values=stat)
-        result.append((race, skl, df))
+        result.append((race, stat, df))
     return result
     
 if __name__ == "__main__":
     result = breakpoints("Human")
-    for race, skl, df in result:
-        print(f"{race} {skl} breakpoints (columns represent XL)")
+    for race, stat, df in result:
+        print(f"{race} {stat} breakpoints (columns represent XL)")
         df = df.fillna(-1).astype(int).astype(str)
         for col in df:
             df[col] = df[col].str.replace("-1", "")
