@@ -9,59 +9,228 @@ import crawl_utils as CU
 
 MAX_SKILL_LEVEL = 27
 MIN_HIT_MISS_PERCENTAGE = 5
-PARM_EVASION = dict(none=0, robe=0, steam=0, leather=-40, acid=-50, ring=-70, swamp=-70,
-                    quicksilver=-70, scale=-100, pearl=-110, chain=-140,
-                    shadow=-150, storm=-150, plate=-180, crystal_plate=-230, golden=-230,
-                    cloak=0, gloves=0, scarf=0, helmet=0, hat=0, boots=0, barding=-60,
-                    buckler=-50, kite=-100, tower=-150)
+PARM_EVASION = dict(
+    none=0,
+    robe=0,
+    steam=0,
+    leather=-40,
+    acid=-50,
+    ring=-70,
+    swamp=-70,
+    quicksilver=-70,
+    scale=-100,
+    pearl=-110,
+    chain=-140,
+    shadow=-150,
+    storm=-150,
+    plate=-180,
+    crystal_plate=-230,
+    golden=-230,
+    cloak=0,
+    gloves=0,
+    scarf=0,
+    helmet=0,
+    hat=0,
+    boots=0,
+    barding=-60,
+    buckler=-50,
+    kite=-100,
+    tower=-150,
+)
 
-PARM_AC = dict(none=0, robe=2, steam=5, leather=3, acid=6, ring=5, swamp=7,
-                    quicksilver=9, scale=6, pearl=10, chain=8,
-                    shadow=11, storm=10, plate=10, crystal_plate=14, golden=12,
-                    cloak=1, gloves=1, scarf=0, helmet=1, hat=0, boots=1, barding=4,
-                    buckler=3, kite=8, tower=13)
+PARM_AC = dict(
+    none=0,
+    robe=2,
+    steam=5,
+    leather=3,
+    acid=6,
+    ring=5,
+    swamp=7,
+    quicksilver=9,
+    scale=6,
+    pearl=10,
+    chain=8,
+    shadow=11,
+    storm=10,
+    plate=10,
+    crystal_plate=14,
+    golden=12,
+    cloak=1,
+    gloves=1,
+    scarf=0,
+    helmet=1,
+    hat=0,
+    boots=1,
+    barding=4,
+    buckler=3,
+    kite=8,
+    tower=13,
+)
 
-PWPN_DAMAGE = dict(war_axe=11, battleaxe=15, broad_axe=13, executioners_axe=18, hand_axe=7,
-                  spear=6, partisan=14, trident=9, demon_trident=12, bardiche=18, glaive=15, trishula=13, halberd=13,
-                  dagger=4, short_sword=5, quick_blade=4, rapier=7, athame=7,
-                  demon_blade=13, falchion=8, long_sword=10, scimitar=12, triple_sword=19, great_sword=17, double_sword=15, eudemon_blade=14,
-                  mace=8, flail=10, morningstar=13, eveningstar=15, demon_whip=11, giant_spiked_club=22, giant_club=20, great_mace=17, dire_flail=13, sacred_scourge=12, club=5,
-                  sling=7, shortbow=8, orcbow=11, longbow=14, arbalest=16, triple_crossbow=23, hand_cannon=16,
-                  staff=5, quarterstaff=10, lajatang=16
-                  )
+PWPN_DAMAGE = dict(
+    war_axe=11,
+    battleaxe=15,
+    broad_axe=13,
+    executioners_axe=18,
+    hand_axe=7,
+    spear=6,
+    partisan=14,
+    trident=9,
+    demon_trident=12,
+    bardiche=18,
+    glaive=15,
+    trishula=13,
+    halberd=13,
+    dagger=4,
+    short_sword=5,
+    quick_blade=4,
+    rapier=7,
+    athame=7,
+    demon_blade=13,
+    falchion=8,
+    long_sword=10,
+    scimitar=12,
+    triple_sword=19,
+    great_sword=17,
+    double_sword=15,
+    eudemon_blade=14,
+    mace=8,
+    flail=10,
+    morningstar=13,
+    eveningstar=15,
+    demon_whip=11,
+    giant_spiked_club=22,
+    giant_club=20,
+    great_mace=17,
+    dire_flail=13,
+    sacred_scourge=12,
+    club=5,
+    sling=7,
+    shortbow=8,
+    orcbow=11,
+    longbow=14,
+    arbalest=16,
+    triple_crossbow=23,
+    hand_cannon=16,
+    staff=5,
+    quarterstaff=10,
+    lajatang=16,
+)
 
-PWPN_SPEED = dict(war_axe=15, battleaxe=17, broad_axe=16, executioners_axe=19, hand_axe=13,
-                  spear=11, partisan=17, trident=13, demon_trident=13, bardiche=19, glaive=17, trishula=13, halberd=15, 
-                  dagger=10, short_sword=10, quick_blade=15, rapier=12, athame=13,
-                  demon_blade=13, falchion=13, long_sword=14, scimitar=14, triple_sword=18, great_sword=17, double_sword=15, eudemon_blade=12,
-                  mace=14, flail=14, morningstar=15, eveningstar=15, demon_whip=11, giant_spiked_club=18, giant_club=16, great_mace=17, dire_flail=13, sacred_scourge=11, club=13,
-                  sling=14, shortbow=14, orcbow=15, longbow=17, arbalest=19, triple_crossbow=23, hand_cannon=19,
-                  staff=12, quarterstaff=13, lajatang=14
-                  )
+PWPN_SPEED = dict(
+    war_axe=15,
+    battleaxe=17,
+    broad_axe=16,
+    executioners_axe=19,
+    hand_axe=13,
+    spear=11,
+    partisan=17,
+    trident=13,
+    demon_trident=13,
+    bardiche=19,
+    glaive=17,
+    trishula=13,
+    halberd=15,
+    dagger=10,
+    short_sword=10,
+    quick_blade=15,
+    rapier=12,
+    athame=13,
+    demon_blade=13,
+    falchion=13,
+    long_sword=14,
+    scimitar=14,
+    triple_sword=18,
+    great_sword=17,
+    double_sword=15,
+    eudemon_blade=12,
+    mace=14,
+    flail=14,
+    morningstar=15,
+    eveningstar=15,
+    demon_whip=11,
+    giant_spiked_club=18,
+    giant_club=16,
+    great_mace=17,
+    dire_flail=13,
+    sacred_scourge=11,
+    club=13,
+    sling=14,
+    shortbow=14,
+    orcbow=15,
+    longbow=17,
+    arbalest=19,
+    triple_crossbow=23,
+    hand_cannon=19,
+    staff=12,
+    quarterstaff=13,
+    lajatang=14,
+)
 
-WEAPON_TO_HIT_BONUS = dict(war_axe=0, battleaxe=-4, broad_axe=-2, executioners_axe=-6, hand_axe=3,
-                  spear=4, partisan=1, trident=1, demon_trident=1, bardiche=-6, glaive=-3, trishula=0, halberd=-3,
-                  dagger=6, short_sword=4, quick_blade=6, rapier=4, athame=5,
-                  demon_blade=-1, falchion=2, long_sword=1, scimitar=0, triple_sword=-4, great_sword=-3, double_sword=-1, eudemon_blade=-2,
-                           mace=3, flail=0, morningstar=-2, eveningstar=-1, demon_whip=1, giant_spiked_club=-7, giant_club=-6, great_mace=-4, dire_flail=-3, sacred_scourge=0, club=3,
-                  sling=0, shortbow=2, orcbow=-3, longbow=0, arbalest=-2, triple_crossbow=-2, hand_cannon=3,
-                  staff=5, quarterstaff=3, lajatang=-3
-                  )
+WEAPON_TO_HIT_BONUS = dict(
+    war_axe=0,
+    battleaxe=-4,
+    broad_axe=-2,
+    executioners_axe=-6,
+    hand_axe=3,
+    spear=4,
+    partisan=1,
+    trident=1,
+    demon_trident=1,
+    bardiche=-6,
+    glaive=-3,
+    trishula=0,
+    halberd=-3,
+    dagger=6,
+    short_sword=4,
+    quick_blade=6,
+    rapier=4,
+    athame=5,
+    demon_blade=-1,
+    falchion=2,
+    long_sword=1,
+    scimitar=0,
+    triple_sword=-4,
+    great_sword=-3,
+    double_sword=-1,
+    eudemon_blade=-2,
+    mace=3,
+    flail=0,
+    morningstar=-2,
+    eveningstar=-1,
+    demon_whip=1,
+    giant_spiked_club=-7,
+    giant_club=-6,
+    great_mace=-4,
+    dire_flail=-3,
+    sacred_scourge=0,
+    club=3,
+    sling=0,
+    shortbow=2,
+    orcbow=-3,
+    longbow=0,
+    arbalest=-2,
+    triple_crossbow=-2,
+    hand_cannon=3,
+    staff=5,
+    quarterstaff=3,
+    lajatang=-3,
+)
+
 
 class TooFewSwings(Exception):
     pass
 
 
-
 def plot1D_TAB(
-        combat_gen,
-        N=10000,
-        num_swings=200,
-        granularity=1,
-        title="",
-        save_as="",
-        x=None,
-        extra_func=None,
+    combat_gen,
+    N=10000,
+    num_swings=200,
+    granularity=1,
+    title="",
+    save_as="",
+    x=None,
+    extra_func=None,
 ):
 
     df = TAB_table(
@@ -93,26 +262,26 @@ def plot1D_TAB(
         plt.savefig(full_save_as, dpi=200)
         print(f"{full_save_as} saved")
     plt.show()
-    
+
     # full_title = f"Expected Turns till Death"
     # if title:
     #     full_title = f"{full_title}\n{title}"
     # if save_as:
     #     full_save_as = f"turns-{save_as}.jpg"
 
-
     return df
 
+
 def plot2D_TAB(
-        combat_gen,
-        N=10000,
-        num_swings=200,
-        granularity=1,
-        title="",
-        save_as="",
-        x=None,
-        y=None,
-        extra_func=None,
+    combat_gen,
+    N=10000,
+    num_swings=200,
+    granularity=1,
+    title="",
+    save_as="",
+    x=None,
+    y=None,
+    extra_func=None,
 ):
 
     df = TAB_table(
@@ -161,6 +330,7 @@ def plot2D_TAB(
         extra_func=extra_func,
     )
     return df
+
 
 def TAB_table(
     combat_gen,
@@ -239,8 +409,6 @@ def HP_instances(attacker, defender, size, check_for_death=True):
     except TypeError:
         damage += damage_instances(attacker, defender, size)
 
-
-
     mask = damage > 0
     # Reduce damage by Regen
     if "regen" not in defender and "HD" in defender:
@@ -298,8 +466,8 @@ def damage_instances(attacker, defender, size):
         elec_mask = stats.bernoulli.rvs(0.25, size=size).astype(bool)
         damage[elec_mask] += elec_damage[elec_mask]
     elif attacker.get("brand") == "spectral":
-        damage = (damage.astype(float)*1.7).astype(int)
-        
+        damage = (damage.astype(float) * 1.7).astype(int)
+
     damage[block | ~hit] = 0
     return damage
 
@@ -317,6 +485,7 @@ def calc_pre_roll_to_hit(attacker, size):
     mhit = mhit.clip(min=1)
     mhit = np.random.randint(mhit)
     return mhit
+
 
 def to_hit_to_con_block(to_hit):
     return 15 + to_hit // 2
@@ -433,7 +602,7 @@ def make_heatmap(
     granularity=1,
     xlim=None,
     ylim=None,
-    levels=None,    
+    levels=None,
     save_as="",
     extra_func=None,
 ):
@@ -490,7 +659,7 @@ def make_hp_table(racial_modifier=0):
 
 
 def find_optimal_skilling_path(
-        combat_gen, axes, title="", save_as="", N=10**4, num_swings=400, granularity=2
+    combat_gen, axes, title="", save_as="", N=10**4, num_swings=400, granularity=2
 ):
     # make ETTD table
     df = TAB_table(combat_gen, N=N, num_swings=num_swings)
@@ -510,7 +679,7 @@ def find_optimal_skilling_path(
     df2 = pd.DataFrame(grid_points, columns=axes)
     df2["XP"] = XP
     grid_points, df2["ETTD"] = interpolate_df(df, axes, "ETTD", granularity=granularity)
-    
+
     # Use gradient to find optimal path
     grid_shape = [df2[ax].unique().size for ax in axes]
     ETTD = df2["ETTD"].values.reshape(*grid_shape)
@@ -559,10 +728,12 @@ def find_optimal_skilling_path(
 
     return path_skills
 
+
 def calc_XP(skills):
     for sk, amount in skills.items():
         CS.set_skill_level(sk, amount, quiet=True, base_only=False)
     return CS.you.total_experience
+
 
 def interpolate_df(df, axes, col, granularity=2):
     coarse_coords = tuple(np.unique(df[ax].values) for ax in axes)
@@ -573,7 +744,9 @@ def interpolate_df(df, axes, col, granularity=2):
                 coord.min(),
                 coord.max(),
                 (len(coord) - 1) * granularity + 1,
-            ).round().astype(int)
+            )
+            .round()
+            .astype(int)
             for coord in coarse_coords
         ],
         indexing="ij",
@@ -593,55 +766,83 @@ def base_ac_from(you, scale):
     AC *= you["AC_multiplier"]
     return AC
 
+
 def base_ac(you, scale):
     AC = base_ac_from(you, 100)
     AC += you["AC_bonus"]
     return AC * scale // 100
 
+
 def unadjusted_body_armour_penalty(you, archery=False):
 
     rfactor = 3 if you["SPARM_ARCHERY"] else 1
-    return max(0, - PARM_EVASION[you["armour_type"]] // 10 // rfactor - you["MUT_STURDY_FRAME"] * 2)
+    return max(
+        0,
+        -PARM_EVASION[you["armour_type"]] // 10 // rfactor
+        - you["MUT_STURDY_FRAME"] * 2,
+    )
+
 
 def _player_aux_evasion_penalty(you, scale):
     piece_armour_evasion_penalty = 0
     for item in you["aux_armour"]:
-        penalty = (- PARM_EVASION[item]) // 3
-        if (penalty > 0):
-            piece_armour_evasion_penalty += penalty;
+        penalty = (-PARM_EVASION[item]) // 3
+        if penalty > 0:
+            piece_armour_evasion_penalty += penalty
 
     return piece_armour_evasion_penalty * scale // 10
-        
-    
+
+
 def adjusted_body_armour_penalty(you, scale, archery=False):
     base_ev_penalty = unadjusted_body_armour_penalty(you, archery)
-    return (2 * base_ev_penalty * base_ev_penalty * (450 - you["skills"]["Armour"] * 10) * scale 
-            // (5 * (you["STR"] + 3)) // 450)
+    return (
+        2
+        * base_ev_penalty
+        * base_ev_penalty
+        * (450 - you["skills"]["Armour"] * 10)
+        * scale
+        // (5 * (you["STR"] + 3))
+        // 450
+    )
 
 
 def adjusted_shield_penalty(you, scale):
-    if (not you["shield_type"]):
+    if not you["shield_type"]:
         return 0
 
     base_shield_penalty = -PARM_EVASION[you["shield_type"]] // 10
-    return (2 * base_shield_penalty * base_shield_penalty
-            * (270 - you["skills"]["Shields"] * 10) * scale
-            // (25 + 5 * you["STR"]) // 270)
+    return (
+        2
+        * base_shield_penalty
+        * base_shield_penalty
+        * (270 - you["skills"]["Shields"] * 10)
+        * scale
+        // (25 + 5 * you["STR"])
+        // 270
+    )
 
 
 def _player_evasion_size_factor(you):
-    return dict(tiny=6, little=4, small=2, medium=0, large=-2, giant=-4)[you["body_size"]]
+    return dict(tiny=6, little=4, small=2, medium=0, large=-2, giant=-4)[
+        you["body_size"]
+    ]
+
 
 def _player_armour_adjusted_dodge_bonus(you, scale):
-    dodge_bonus = ((800 + you["skills"]["Dodging"] * 10 * you["DEX"] * 8) * scale
-        // (20 - _player_evasion_size_factor(you)) // 10 // 10)
+    dodge_bonus = (
+        (800 + you["skills"]["Dodging"] * 10 * you["DEX"] * 8)
+        * scale
+        // (20 - _player_evasion_size_factor(you))
+        // 10
+        // 10
+    )
 
     armour_dodge_penalty = unadjusted_body_armour_penalty(you) - 3
-    if (armour_dodge_penalty <= 0):
+    if armour_dodge_penalty <= 0:
         return dodge_bonus
 
     STR = max(1, you["STR"])
-    if (armour_dodge_penalty >= STR):
+    if armour_dodge_penalty >= STR:
         return dodge_bonus * STR // (armour_dodge_penalty * 2)
     return dodge_bonus - dodge_bonus * armour_dodge_penalty // (STR * 2)
 
@@ -659,17 +860,20 @@ def _player_evasion(you, final_scale):
         - adjusted_body_armour_penalty(you, scale)
         - adjusted_shield_penalty(you, scale)
         - _player_aux_evasion_penalty(you, scale)
-        + you["EV_bonus"] * scale)
+        + you["EV_bonus"] * scale
+    )
 
-    if (you["form"] == "statue"):
+    if you["form"] == "statue":
         natural_evasion = natural_evasion * 4 // 5
 
     return (natural_evasion * final_scale) // scale
 
+
 def evasion(you, can_see_attacker=True):
     base_evasion = CU.div_rand_round(_player_evasion(you, 100), 100)
-    invis_penalty = 0 if can_see_attacker else 10 
+    invis_penalty = 0 if can_see_attacker else 10
     return base_evasion - invis_penalty
+
 
 def _sh_from_shield(you):
     base_shield = PARM_AC[you["shield_type"]] * 2
@@ -681,6 +885,7 @@ def _sh_from_shield(you):
     shield += you["DEX"] * 38 * (base_shield + 13) // 26
     return shield
 
+
 def player_shield_class(you, scale, random):
     """
     Calculate the SH value used internally.
@@ -688,28 +893,34 @@ def player_shield_class(you, scale, random):
     """
     shield = 0
 
-    if (you["shield_type"] in ("buckler", "kite", "tower")):
+    if you["shield_type"] in ("buckler", "kite", "tower"):
         shield += _sh_from_shield(you)
 
     # multiply by 200 since the returned value is twice the displayed value
     shield += you["SH_bonus"] * 200
 
-    return CU.div_rand_round(shield * scale, 100) if random else ((shield * scale) // 100)
+    return (
+        CU.div_rand_round(shield * scale, 100) if random else ((shield * scale) // 100)
+    )
+
 
 def player_displayed_shield_class(you, scale):
     return player_shield_class(you, scale, False) // 2
 
+
 def is_crossbow(weapon):
     return weapon in ("hand_cannon", "arbalest", "triple_crossbow")
 
+
 def weapon_adjust_delay(you, base, random):
     brand = you["brand"]
-    if (brand == "speed"):
+    if brand == "speed":
         return CU.div_rand_round(base * 2, 3) if random else (base * 2) // 3
-    if (brand == "heavy"):
+    if brand == "heavy":
         return CU.div_rand_round(base * 3, 2) if random else (base * 3) // 2
-    return base;
-    
+    return base
+
+
 def weapon_min_delay(you, check_speed):
     """How fast will this weapon get from your skill training?
     @param weapon the weapon to be considered.
@@ -719,55 +930,107 @@ def weapon_min_delay(you, check_speed):
     weapon = you["weapon_type"]
     base = PWPN_SPEED[weapon]
 
-    if (weapon == "UNRAND_WOODCUTTERS_AXE"):
+    if weapon == "UNRAND_WOODCUTTERS_AXE":
         return base
 
-    min_delay = base//2
+    min_delay = base // 2
 
     # Short blades can get up to at least unarmed speed.
-    if (item_attack_skill(weapon) == "Short Blades" and min_delay > 5):
+    if item_attack_skill(weapon) == "Short Blades" and min_delay > 5:
         min_delay = 5
 
     # All weapons have min delay 7 or better
-    if (min_delay > 7):
+    if min_delay > 7:
         min_delay = 7
 
     # ...except crossbows...
-    if (is_crossbow(weapon) and min_delay < 10):
+    if is_crossbow(weapon) and min_delay < 10:
         min_delay = 10
 
     # ... and unless it would take more than skill 27 to get there.
     # Round up the reduction from skill, so that min delay is rounded down.
     min_delay = max(min_delay, base - (MAX_SKILL_LEVEL + 1) // 2)
 
-    if (check_speed):
+    if check_speed:
         min_delay = weapon_adjust_delay(you, min_delay, false)
 
     # never go faster than speed 3 (ie 3.33 attacks per round)
-    if (min_delay < 3):
+    if min_delay < 3:
         min_delay = 3
 
     return min_delay
-    
+
+
 def weapon_min_delay_skill(you):
     weapon_type = you["weapon_type"]
     speed = PWPN_SPEED[weapon_type]
-    mindelay = weapon_min_delay(you, False);
-    return (speed - mindelay) * 2;
+    mindelay = weapon_min_delay(you, False)
+    return (speed - mindelay) * 2
 
 
 def item_attack_skill(weapon_type):
-    return ("Axes" if weapon_type in ("war_axe", "battleaxe", "broad_axe", "hand_axe") else
-            "Polearms" if weapon_type in ("spear", "trident", "demon_trident", "partisan", "halberd", "bardiche", "glaive", "trishula", "halberd") else
-            "Short Blades" if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier", "athame") else
-            "Long Blades" if weapon_type in ("demon_blade", "falchion", "long_sword", "scimitar", "double_sword", "triple_sword", "great_sword", "eudemon_blade") else
-            "Maces & Flails" if weapon_type in ("mace", "flail", "morningstar", "eveningstar", "demon_whip", "giant_spiked_club", "giant_club", "great_mace", "dire_flail", "sacred_scourge", "club") else
-            "Ranged" if weapon_type in ("sling", "shortbow", "orcbow", "longbow", "arbalest", "triple_crossbow", "hand_cannon") else
-            "Staves" if weapon_type in ("staff", "quarterstaff", "lajatang") else
-            "Unknown weapon skill"
-            )
+    return (
+        "Axes"
+        if weapon_type in ("war_axe", "battleaxe", "broad_axe", "hand_axe")
+        else "Polearms"
+        if weapon_type
+        in (
+            "spear",
+            "trident",
+            "demon_trident",
+            "partisan",
+            "halberd",
+            "bardiche",
+            "glaive",
+            "trishula",
+            "halberd",
+        )
+        else "Short Blades"
+        if weapon_type in ("dagger", "short_sword", "quick_blade", "rapier", "athame")
+        else "Long Blades"
+        if weapon_type
+        in (
+            "demon_blade",
+            "falchion",
+            "long_sword",
+            "scimitar",
+            "double_sword",
+            "triple_sword",
+            "great_sword",
+            "eudemon_blade",
+        )
+        else "Maces & Flails"
+        if weapon_type
+        in (
+            "mace",
+            "flail",
+            "morningstar",
+            "eveningstar",
+            "demon_whip",
+            "giant_spiked_club",
+            "giant_club",
+            "great_mace",
+            "dire_flail",
+            "sacred_scourge",
+            "club",
+        )
+        else "Ranged"
+        if weapon_type
+        in (
+            "sling",
+            "shortbow",
+            "orcbow",
+            "longbow",
+            "arbalest",
+            "triple_crossbow",
+            "hand_cannon",
+        )
+        else "Staves"
+        if weapon_type in ("staff", "quarterstaff", "lajatang")
+        else "Unknown weapon skill"
+    )
 
-    
+
 def attack_delay_with(you):
     """
     Returns attack speed in auts
@@ -793,9 +1056,11 @@ def attack_delay_with(you):
     # FIXME?: Finesse has not been implemented
 
     return max((attk_delay * you["player_speed"] / 10), 1)
-    
+
+
 def player_regen(you):
     return (20 + you["HP"] // 6) / 100 + you["regen_bonus"]
+
 
 def get_real_mp(you):
     scale = 100
@@ -812,7 +1077,7 @@ def get_real_mp(you):
 
     # FIXME: MUT_HIGH_MAGIC / MUT_LOW_MAGIC not implemented
     enp //= scale
-    
+
     enp += CS._spec_stats.loc[you["race"], "MP"]
 
     # FIXME: mp_max_adj not implemented. What is "rotted" base?
@@ -822,6 +1087,7 @@ def get_real_mp(you):
         enp /= 3
     enp = max(enp, 0)
     return enp
+
 
 def player_mp_regen(you):
     # FIXME: MUT_HP_CASTING not implemented
@@ -839,11 +1105,14 @@ def player_mp_regen(you):
 
     return regen_amount / 100
 
+
 def get_real_hp(you):
 
-    hitp  = you["XL"] * 11 // 2 + 8
-    hitp += (you["XL"] * you["skills"]["Fighting"] * 5 // 70
-             + (you["skills"]["Fighting"] * 3 + 1) // 2)
+    hitp = you["XL"] * 11 // 2 + 8
+    hitp += (
+        you["XL"] * you["skills"]["Fighting"] * 5 // 70
+        + (you["skills"]["Fighting"] * 3 + 1) // 2
+    )
 
     # Racial modifier.
     hitp *= 10 + CS.you.hp_modifier * 10
@@ -854,15 +1123,17 @@ def get_real_hp(you):
 
     return max(1, hitp)
 
+
 def brand_adjust_weapon_damage(base_dam, brand, random):
     if brand != "heavy":
         return base_dam
     return CU.div_rand_round(base_dam * 9, 5) if random else base_dam * 9 // 5
 
-    
+
 def weapon_uses_strength(wpn_skill):
     return wpn_skill not in ("Long Blades", "Short Blades", "Ranged")
-    
+
+
 def stat_modify_damage(you, damage, wpn_skill):
     # At 10 strength, damage is multiplied by 1.0
     # Each point of strength over 10 increases this by 0.025 (2.5%),
@@ -875,12 +1146,14 @@ def stat_modify_damage(you, damage, wpn_skill):
     damage //= 100
 
     return damage
-    
+
+
 def apply_weapon_skill(you, damage, wpn_skill, random):
     sklvl = you["skills"][wpn_skill] * 100
     damage *= 2500 + CU.maybe_random2(sklvl + 1, random)
     damage //= 2500
-    return damage;
+    return damage
+
 
 def apply_fighting_skill(you, damage, aux, random):
     base = 40 if aux else 30
@@ -890,6 +1163,7 @@ def apply_fighting_skill(you, damage, aux, random):
     damage //= base * 100
 
     return damage
+
 
 def damage_rating(you):
     # FIXME: Throwing damage has not been implemented
@@ -906,8 +1180,10 @@ def damage_rating(you):
     use_str = weapon_uses_strength(skill)
     # Throwing weapons and UC only get a damage mult from Fighting skill,
     # not from Throwing/UC skill.
-    use_weapon_skill = (you["weapon_type"] != "UC")
-    weapon_skill_mult = apply_weapon_skill(you, 100, skill, False) if use_weapon_skill else 100
+    use_weapon_skill = you["weapon_type"] != "UC"
+    weapon_skill_mult = (
+        apply_weapon_skill(you, 100, skill, False) if use_weapon_skill else 100
+    )
     skill_mult = apply_fighting_skill(you, weapon_skill_mult, False, False)
 
     # slay bonuses and weapon plusses both improve to_hit and damage the same way
@@ -918,13 +1194,14 @@ def damage_rating(you):
     DAM_RATE_SCALE = 100
     rating = (base_dam + extra_base_dam) * DAM_RATE_SCALE
     rating = stat_modify_damage(you, rating, skill)
-    if (use_weapon_skill):
+    if use_weapon_skill:
         rating = apply_weapon_skill(you, rating, skill, False)
     rating = apply_fighting_skill(you, rating, False, False)
     rating //= DAM_RATE_SCALE
     rating += plusses
     return rating
-    
+
+
 params = dict()
 params["gnoll"] = dict(
     damage=(6,),
@@ -1015,4 +1292,3 @@ params["juggernaut"] = dict(
 params["orb guardian"] = dict(
     damage=(45,), HD=15, skilled=False, AC=13, EV=13, SH=0, HP=83, attack_delay=1 / 1.4
 )
-
