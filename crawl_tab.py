@@ -1106,7 +1106,12 @@ def get_real_mp(you):
 
 
 def player_mp_regen(you):
-    # FIXME: MUT_HP_CASTING not implemented
+    if "MUT_HP_CASTING" not in you:
+        if you["race"] in ("Djinni",):
+            you["MUT_HP_CASTING"] = True
+
+    if you.get("MUT_HP_CASTING", False):
+        return 0
 
     regen_amount = 7 + you["MP"] // 2
 
