@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import ast
 import argparse
 import numpy as np
 import pandas as pd
@@ -57,8 +58,13 @@ if __name__ == "__main__":
         help="print just the first 30 rows and 10 columns of each table",
     )
     parser.add_argument("--all", action="store_true", help="dump tables for every race")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--crop",
+        help="--crop A:BxC:D crops the table to skill values from A to B and XL from C to D",
+    )
 
+    args = parser.parse_args()
+    print(args)
     races = CS.SPECIES if args.all else [args.race]
     for race in races:
         result = breakpoints(race)
@@ -68,6 +74,13 @@ if __name__ == "__main__":
                 df = df.iloc[:, :10]
                 df = df.dropna(axis="rows", how="all")
                 df = df.iloc[:30, :]
+            elif args.crop:
+                args.crop = args.crop.lower()
+                AB, CD = args.crop.split("x")
+                A, B = map(ast.literal_eval, AB.split(":"))
+                C, D = map(ast.literal_eval, CD.split(":"))
+                df = df.loc[A:B, C:D]
+                df = df.dropna(axis="rows", how="all")                
             df = df.fillna(-1).astype(int).astype(str)
             for col in df:
                 df[col] = df[col].str.replace("-1", "")
