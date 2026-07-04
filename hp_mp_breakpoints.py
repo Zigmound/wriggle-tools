@@ -33,7 +33,7 @@ def breakpoints(race):
         data = list()
         for xli in XL:
             you["XL"] = xli
-            previous = 0
+            previous = -1
             for lvl in skill_levels:
                 you["skills"][skl] = lvl
                 statval = calc(you)

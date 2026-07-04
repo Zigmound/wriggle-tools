@@ -1063,6 +1063,13 @@ def player_regen(you):
 
 
 def get_real_mp(you):
+    if "MUT_HP_CASTING" not in you:
+        if you["race"] in ("Djinni",):
+            you["MUT_HP_CASTING"] = True
+
+    if you.get("MUT_HP_CASTING", False):
+        return 0
+
     scale = 100
     spellcasting = you["skills"]["Spellcasting"] * scale
     scaled_xl = you["XL"] * scale
@@ -1075,8 +1082,17 @@ def get_real_mp(you):
     highest_skill = max(spell_extra, invoc_extra)
     enp += highest_skill + min(8 * scale, min(highest_skill, scaled_xl)) // 2
 
-    # FIXME: MUT_HIGH_MAGIC / MUT_LOW_MAGIC not implemented
-    enp //= scale
+    if "MUT_LOW_MAGIC" not in you:
+        if you["race"] in ("Revenant",):
+            you["MUT_LOW_MAGIC"] = 2
+    if "MUT_HIGH_MAGIC" not in you:
+        if you["race"] in ("Demigod",):
+            you["MUT_HIGH_MAGIC"] = 1
+
+    enp *= (
+        100 + (you.get("MUT_HIGH_MAGIC", 0) * 10) - (you.get("MUT_LOW_MAGIC", 0) * 10)
+    )
+    enp //= 100 * scale
 
     enp += CS._spec_stats.loc[you["race"], "MP"]
 
@@ -1117,6 +1133,11 @@ def get_real_hp(you):
     # Racial modifier.
     hitp *= 10 + CS.you.hp_modifier * 10
     hitp //= 10
+
+    if "MUT_FLAT_HP" not in you:
+        if you["race"] in ("Djinni",):
+            you["MUT_FLAT_HP"] = 1
+    hitp += you.get("MUT_FLAT_HP", 0) * 4
 
     hitp += you["HP_bonus"]
     hitp *= you["HP_multiplier"]
