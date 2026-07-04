@@ -8,22 +8,45 @@ DEBUG = False
 MAX_SKILL_LEVEL = 27
 MAX_SKILL_COST_LEVEL = 27
 APT_DOUBLE = 4
-skill_name_pairs = [("Arm", "Armour"), ("Ddg", "Dodging"), ("Sth", "Stealth"), ("Shd", "Shields"),
-                    ("Shp", "Shapeshifting"), ("Inv", "Invocations"), ("Evo", "Evocations"),
-                    ("Thr", "Throwing"), ("Fgt", "Fighting"), ("MF", "Maces & Flails"),
-                    ("Axs", "Axes"), ("Pla", "Polearms"), ("Stv", "Staves"),
-                    ("UC", "Unarmed Combat"), ("SBl", "Short Blades"), ("LBl", "Long Blades"),
-                    ("Rng", "Ranged"), ("Spc", "Spellcasting"), ("Coj", "Conjurations"),
-                    ("Hex", "Hexes"), ("Sum", "Summoning"), ("Nec", "Necromancy"),
-                    ("Fgr", "Forgecraft"), ("Trl", "Translocations"), ("Fir", "Fire"),
-                    ("Ice", "Ice"), ("Air", "Air"), ("Ear", "Earth"), ("Alc", "Alchemy")]
-short_to_long = {pair[0]:pair[1] for pair in skill_name_pairs}
-long_to_short = {pair[1]:pair[0] for pair in skill_name_pairs}
+skill_name_pairs = [
+    ("Arm", "Armour"),
+    ("Ddg", "Dodging"),
+    ("Sth", "Stealth"),
+    ("Shd", "Shields"),
+    ("Shp", "Shapeshifting"),
+    ("Inv", "Invocations"),
+    ("Evo", "Evocations"),
+    ("Thr", "Throwing"),
+    ("Fgt", "Fighting"),
+    ("MF", "Maces & Flails"),
+    ("Axs", "Axes"),
+    ("Pla", "Polearms"),
+    ("Stv", "Staves"),
+    ("UC", "Unarmed Combat"),
+    ("SBl", "Short Blades"),
+    ("LBl", "Long Blades"),
+    ("Rng", "Ranged"),
+    ("Spc", "Spellcasting"),
+    ("Coj", "Conjurations"),
+    ("Hex", "Hexes"),
+    ("Sum", "Summoning"),
+    ("Nec", "Necromancy"),
+    ("Fgr", "Forgecraft"),
+    ("Trl", "Translocations"),
+    ("Fir", "Fire"),
+    ("Ice", "Ice"),
+    ("Air", "Air"),
+    ("Ear", "Earth"),
+    ("Alc", "Alchemy"),
+]
+short_to_long = {pair[0]: pair[1] for pair in skill_name_pairs}
+long_to_short = {pair[1]: pair[0] for pair in skill_name_pairs}
 
 species_skill_aptitude = """
- species          | Arm | Ddg | Sth | Shd | Shp | Inv | Evo | Thr | Fgt | MF | Axs | Pla | Stv | UC | SBl | LBl | Rng | Spc | Coj | Hex | Sum | Nec | Fgr | Trl | Fir | Ice | Air | Ear | Alc |
+| species          | Arm | Ddg | Sth | Shd | Shp | Inv | Evo | Thr | Fgt | MF  | Axs | Pla | Stv | UC | SBl | LBl | Rng | Spc | Coj | Hex | Sum | Nec | Fgr | Trl | Fir | Ice | Air | Ear | Alc |
 |------------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----|
 | Armataur         |   2 |  -3 |   2 |   1 |  -2 |   0 |   0 |  -1 |  -1 |  -1 |  -2 |  -2 |  -1 | -1 |  -1 |  -1 |  -3 |  -2 |  -1 |  -1 |  -2 |  -2 |  -2 |   0 |  -1 |  -1 |  -1 |  -1 |  -1 |
+| Gale Centaur     |   0 |  +1 |  +2 |  +1 |  -2 |  +2 |  -1 |  -2 |   0 |  -1 |  -2 |  -1 |  -1 | -1 |  -1 |  -1 |   0 |  -2 |  -1 |  -1 |  -2 |  -2 |  -2 |  +1 |  -1 |  -1 |  +2 |  -1 |  -2 |
 | Barachi          |   2 |   1 |   0 |   1 |   0 |  -1 |   1 |   0 |   2 |   1 |   1 |   0 |   1 |  1 |   1 |   2 |   0 |   0 |   1 |   1 |   2 |  -1 |   1 |   1 |   1 |   2 |   1 |   0 |   1 |
 | Coglin           |  -1 |  -1 |  -1 |  -3 |  -2 |  -2 |   3 |  -1 |   0 |  -1 |   0 |  -1 |  -1 | -1 |  -1 |   0 |  -1 |  -2 |  -1 |  -1 |   0 |   0 |   2 |   0 |  -1 |  -1 |  -1 |  -1 |   1 |
 | Deep Elf         |  -2 |   2 |   3 |  -2 |   0 |   1 |   1 |   0 |  -2 |  -3 |  -2 |  -3 |   0 | -2 |   0 |  -1 |   3 |   3 |   1 |   3 |   1 |   2 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |
@@ -54,7 +77,7 @@ species_skill_aptitude = """
 | Octopode         |   0 |   0 |   4 |   0 |  -1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 |   0 |  0 |   0 |   0 |   0 |  -1 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |   1 |
 | Oni              |  -1 |  -1 |  -2 |  -1 |  -1 |   2 |  -2 |   0 |   3 |   0 |   0 |   0 |   0 | -1 |  -1 |  -1 |  -3 |   1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |  -1 |
 | Poltergeist      |   0 |   1 |   5 |  -1 |   0 |  -1 |  -1 |   2 |  -1 |  -2 |  -1 |  -1 |  -2 | -3 |   1 |   0 |  -2 |  -1 |  -3 |   4 |   0 |   1 |  -1 |   0 |  -1 |   1 |   1 |  -1 |   1 |
-| Revenent         |  -1 |  -1 |   2 |  -1 |   0 |   1 |  -1 |  -1 |   1 |  -1 |  -1 |  -1 |  -1 |  1 |  -1 |  -1 |  -3 |  -1 |  -1 |  -2 |  -1 |   0 |  -2 |  -1 |  -2 |   1 |  -2 |   1 |  -1 |
+| Revenant         |  -1 |  -1 |   2 |  -1 |   0 |   1 |  -1 |  -1 |   1 |  -1 |  -1 |  -1 |  -1 |  1 |  -1 |  -1 |  -3 |  -1 |  -1 |  -2 |  -1 |   0 |  -2 |  -1 |  -2 |   1 |  -2 |   1 |  -1 |
 | Spriggan         |  -3 |   3 |   5 |  -3 |   2 |   0 |   3 |   0 |  -2 |  -3 |  -2 |  -3 |  -3 | -2 |   1 |  -2 |   0 |   2 |  -3 |   2 |  -2 |  -1 |  -2 |   4 |  -2 |  -2 |  -1 |  -1 |   1 |
 | Tengu            |   1 |   1 |   1 |   0 |  -2 |  -1 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |  1 |   1 |   1 |   1 |  -1 |   3 |  -3 |   2 |   1 |  -2 |  -2 |   1 |  -1 |   3 |  -3 |  -1 |
 | Troll            |  -2 |  -2 |  -5 |  -1 |  -1 |  -1 |  -3 |  -1 |  -2 |  -1 |  -2 |  -2 |  -2 |  0 |  -2 |  -2 |  -4 |  -5 |  -3 |  -4 |  -3 |  -2 |  -3 |  -3 |  -3 |  -3 |  -4 |  -1 |  -3 |
@@ -72,7 +95,7 @@ species_stats = """
 | Demonspawn       |   0 |  0 |  -1 |  3 |
 | Octopode         | -10 |  0 |   0 |  3 |
 | Poltergeist      | -10 |  0 |   0 |  4 |
-| Revenent         |  10 |  1 |  -1 |  3 |
+| Revenant         |  10 |  1 |  -1 |  3 |
 | Tengu            | -20 |  1 |   0 |  3 |
 | Felid            | -30 |  1 |  -1 |  6 |
 | Vine Stalker     | -30 |  1 |   0 |  5 |
@@ -96,6 +119,7 @@ species_stats = """
 | Draconian Yellow |  10 |  0 |  -1 |  3 |
 | Ghoul            |  10 |  0 |   0 |  3 |
 | Armataur         |  10 |  0 |  -1 |  3 |
+| Gale Centaur     |  10 |  0 |  -1 |  3 |
 | Minotaur         |  10 | -1 |  -1 |  3 |
 | Troll            |  30 | -1 |  -1 |  3 |
 | Naga             |  20 |  0 |   0 |  5 |
