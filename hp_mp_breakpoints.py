@@ -14,7 +14,7 @@ pd.options.display.max_rows = sys.maxsize
 
 def breakpoints(race):
     you = {
-        "skills": {"Fighting": 0, "Spellcasting": 3.3, "Invocations": 0},
+        "skills": {"Fighting": 0, "Spellcasting": 0, "Invocations": 0},
         "XL": 1,
         "HP_bonus": 0,
         "HP_multiplier": 1,
@@ -64,7 +64,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    print(args)
     races = CS.SPECIES if args.all else [args.race]
     for race in races:
         result = breakpoints(race)
@@ -80,7 +79,7 @@ if __name__ == "__main__":
                 A, B = map(ast.literal_eval, AB.split(":"))
                 C, D = map(ast.literal_eval, CD.split(":"))
                 df = df.loc[A:B, C:D]
-                df = df.dropna(axis="rows", how="all")                
+                df = df.dropna(axis="rows", how="all")
             df = df.fillna(-1).astype(int).astype(str)
             for col in df:
                 df[col] = df[col].str.replace("-1", "")

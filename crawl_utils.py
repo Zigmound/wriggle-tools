@@ -235,8 +235,27 @@ def random2avg(maxv, rolls, size):
     total = random2(maxv, size) + random2(maxv + 1, new_size).sum(axis=-1)
     return total // rolls
 
-def maybe_random2(x, random_factor):
-    return 0 if (x <= 1) else random2(x) if random_factor else x // 2
+
+def maybe_random2(x, random_factor, size=1):
+    """
+    Returns random2(x) if random_factor is true, otherwise the mean.
+    [0, x)
+    """
+    return 0 if (x <= 1) else random2(x, size) if random_factor else x // 2
+
+
+def maybe_random2_div(nom, denom, random_factor, size=1):
+    """
+    [0, ceil(nom/denom)]
+    """
+    return (
+        0
+        if (nom <= 1)
+        else random2(nom + denom, size) // denom
+        if random_factor
+        else nom // 2 // denom
+    )
+
 
 def fuzz_value(val, lowfuzz, highfuzz, naverage=2, size=1):
     lfuzz = lowfuzz * val // 100

@@ -478,9 +478,19 @@ def calc_pre_roll_to_hit(attacker, size):
     """
     mhit = 15 + attacker["DEX"] // 2
     mhit += CU.random2_div(attacker["skills"]["Fighting"] * 100, 100, size)
-    wpn_skill = item_attack_skill(attacker["weapon_type"])
-    mhit += CU.random2_div(attacker["skills"][wpn_skill] * 100, 100, size)
-    mhit += WEAPON_TO_HIT_BONUS[attacker["weapon_type"]]
+    item, thrown = get_weapon(attacker)
+    if item:
+        wpn_skill = item_attack_skill(attacker["weapon_type"])
+        mhit += CU.random2_div(attacker["skills"][wpn_skill] * 100, 100, size)
+    else:
+        # FIXME: Forms have not been implemented
+        # UC gets extra acc to compensate for lack of weapon enchantment.
+        mhit += 6
+        mhit += CU.maybe_random2_div(
+            attacker["skills"]["Unarmed Combat"] * 100, 100, size
+        )
+    if item:
+        mhit += WEAPON_TO_HIT_BONUS[attacker["weapon_type"]]
     mhit += attacker["slaying"]
     mhit = mhit.clip(min=1)
     mhit = np.random.randint(mhit)
@@ -760,6 +770,10 @@ def interpolate_df(df, axes, col, granularity=2):
     return fine_grid_points, fine_values
 
 
+def skill_rdiv(you, sk, mult=1, div=1):
+    return CU.div_rand_round(you["skills"][sk] * mult * 256, div * 256)
+
+
 def base_ac_from(you, scale):
     base = you["total_parm_ac"] * scale
     AC = base * (440 + you["skills"]["Armour"] * 20) // 440
@@ -1027,7 +1041,7 @@ def item_attack_skill(weapon_type):
         )
         else "Staves"
         if weapon_type in ("staff", "quarterstaff", "lajatang")
-        else "Unknown weapon skill"
+        else "Fighting"
     )
 
 
@@ -1037,16 +1051,23 @@ def attack_delay_with(you):
     """
     # FIX ME: UC, thrown and ranged weapon delays have not been implemented
     DELAY_SCALE = 20
-    wpn_skill = item_attack_skill(you["weapon_type"])
-    # Cap skill contribution to mindelay skill, so that rounding
-    # doesn't make speed brand benefit from higher skill.
-    wpn_sklev = min(you["skills"][wpn_skill] * 10, weapon_min_delay_skill(you) * 10)
+    weap, is_throwable = get_weapon(you)
+    if weap and is_throwable:
+        raise NotImplementedError
+    if not weap:
+        # FIXME: Forms have not been implemented
+        attk_delay = 10 - you["skills"]["Unarmed Combat"] / 27 * 2
+    else:
+        wpn_skill = item_attack_skill(weap)
+        # Cap skill contribution to mindelay skill, so that rounding
+        # doesn't make speed brand benefit from higher skill.
+        wpn_sklev = min(you["skills"][wpn_skill] * 10, weapon_min_delay_skill(you) * 10)
 
-    attk_delay = PWPN_SPEED[you["weapon_type"]]
-    attk_delay -= wpn_sklev / DELAY_SCALE
+        attk_delay = PWPN_SPEED[weap]
+        attk_delay -= wpn_sklev / DELAY_SCALE
 
-    # unlike the C++ code, I want random=False so I get a "best" decimal value for attk_delay
-    attk_delay = weapon_adjust_delay(you, attk_delay, random=False)
+        # unlike the C++ code, I want random=False so I get a "best" decimal value for attk_delay
+        attk_delay = weapon_adjust_delay(you, attk_delay, random=False)
 
     # At the moment it never gets this low anyway.
     attk_delay = max(attk_delay, 3)
@@ -1191,22 +1212,69 @@ def apply_fighting_skill(you, damage, aux, random):
     return damage
 
 
+def unarmed_base_damage(you, random):
+    # FIXME: Forms have not been implemented. User has to set the base damage (UC_base_damage) manually
+    damage = you["UC_base_damage"]
+    return damage
+
+
+def unarmed_base_damage_bonus(you, random):
+    # FIXME: Forms have not been implemented
+    if you["form"] != "none":
+        raise NotImplementedError
+    if random:
+        return skill_rdiv(you, "Unarmed Combat")
+    return you["skills"]["Unarmed Combat"]
+
+
+def get_weapon(you):
+    item = you["weapon_type"]
+    thrown = item.lower().startswith(
+        (
+            "sling",
+            "shortbow",
+            "longbow",
+            "orcbow",
+            "arbalest",
+            "triple_crossbow",
+            "hand_cannon",
+        )
+    )
+    if item.lower().startswith(("none", "unarmed", "uc")):
+        item = None
+    return item, thrown
+
+
 def damage_rating(you):
     # FIXME: Throwing damage has not been implemented
     # FIXME: UC damage has not been implemented
-    base_dam = PWPN_DAMAGE[you["weapon_type"]]
+    item, thrown = get_weapon(you)
+
+    if item:
+        base_dam = PWPN_DAMAGE[item]
+    else:
+        base_dam = unarmed_base_damage(you, False)
 
     # This is just SPWPN_HEAVY.
     post_brand_dam = brand_adjust_weapon_damage(base_dam, you["brand"], False)
     heavy_dam = post_brand_dam - base_dam
-    extra_base_dam = heavy_dam
-    skill = item_attack_skill(you["weapon_type"])
+    if thrown:
+        raise NotImplementedError
+    elif not item:
+        extra_base_dam = unarmed_base_damage_bonus(you, False)
+    else:
+        extra_base_dam = heavy_dam
+
+    if item:
+        skill = item_attack_skill(item)
+    else:
+        skill = "Unarmed Combat"
 
     stat_mult = stat_modify_damage(you, 100, skill)
     use_str = weapon_uses_strength(skill)
     # Throwing weapons and UC only get a damage mult from Fighting skill,
     # not from Throwing/UC skill.
-    use_weapon_skill = you["weapon_type"] != "UC"
+    use_weapon_skill = item is not None
     weapon_skill_mult = (
         apply_weapon_skill(you, 100, skill, False) if use_weapon_skill else 100
     )
@@ -1270,6 +1338,7 @@ params["death yak"] = dict(
     HP=77,
 )
 
+
 params["hydra"] = dict(
     damage=(18,),
     HD=13,
@@ -1317,4 +1386,14 @@ params["juggernaut"] = dict(
 
 params["orb guardian"] = dict(
     damage=(45,), HD=15, skilled=False, AC=13, EV=13, SH=0, HP=83, attack_delay=1 / 1.4
+)
+
+params["boss"] = dict(
+    damage=(300,),
+    HD=30,
+    skilled=True,
+    AC=30,
+    EV=10,
+    SH=0,
+    HP=180,
 )
