@@ -783,7 +783,7 @@ def base_ac_from(you, scale):
 
 def base_ac(you, scale):
     AC = base_ac_from(you, 100)
-    AC += you["AC_bonus"]
+    AC += you["AC_bonus"] * 100
     return AC * scale // 100
 
 
