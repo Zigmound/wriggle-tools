@@ -8,16 +8,17 @@ import crawl_skills as CS
 pd.options.display.width = sys.maxsize
 pd.options.display.max_columns = None
 
-def bang_for_xp_buck(race, monster, target, configs):
+
+def bang_for_xp_buck(race, monster, target):
     # find the XP required to reach the target skill level
     CS.you = CS.Player(race)
 
-    df = pd.DataFrame(target[1:], columns=target[0])
+    df = target
     df["skl"] = [CS.long_to_short[val] for val in df["skill"].values]
     skills = dict(zip(df["skl"], df["current"].values))
     threshold_XP = 0
     for idx, row in df.iterrows():
-        if row.target:
+        if not np.isnan(row.target):
             skills2 = skills.copy()
             skills2[row.skl] = row.target
             min_XP = CT.calc_XP(skills2)
@@ -45,7 +46,7 @@ def bang_for_xp_buck(race, monster, target, configs):
             "Spc",
             "Inv",
         ):
-            # My simulator is not affected by the other skills, so we are blind to the effect
+            # The simulator is not affected by the other skills, so we are blind to the effect
             # training these skills have on true EKTD/ETTD
             continue
         skills2 = skills.copy()
@@ -63,17 +64,20 @@ def bang_for_xp_buck(race, monster, target, configs):
     bfxb["diff"] = bfxb["target"] - bfxb["current"]
     return bfxb, skills
 
+
 def find_best_skill(race, monster, target, configs, N=10**4, num_swings=400):
-    bfxb, skills = bang_for_xp_buck(race, monster, target, configs)
+    bfxb, skills = bang_for_xp_buck(race, monster, target)
+
     # Compute EKTD and ETTD for each config and for each skill
     result = list()
-    for row in configs[1:]:
+    for idx, row in configs.iterrows():
+        row = list(row)
         for idx, skill_row in bfxb.iterrows():
             player = dict(
                 gdr=True,
             )
             player["race"] = race
-            config = dict(zip(configs[0], row))
+            config = dict(zip(configs.columns.tolist(), row))
             config["aux_armour"] = config["aux_armour"].split()
             player.update(config)
 
@@ -158,59 +162,42 @@ def find_best_skill(race, monster, target, configs, N=10**4, num_swings=400):
 
 
 if __name__ == "__main__":
+    import crawl_utils as CU
+
     # configurable inputs
     race = "Octopode"
     monster = CT.params["titan"]
 
-    # The third value on each row set the target skill levels.
+    # The third column sets the target skill levels.
+    # The fourth column is a hack to simulate the effect of manuals.
+    # For example, setting a skill_bonus of 2 means the manual allows you to train 2 additional skill levels.
     # Below, we'll compute the amount of XP required to reach the target skill levels.
     # If no value is set, the program will find the skill level attainable for the same amount of XP.
 
-    target = [
-        ["skill", "current", "target", "skill_bonus"],
-        ["Fighting", 13, 18, 0],
-        ["Polearms", 14, "", 0],
-        ["Armour", 0, "", 0],
-        ["Dodging", 18, "", 0],
-        ["Shields", 19, "", 0],
-        ["Spellcasting", 2, "", 0],
-        ["Conjurations", 3, "", 0],
-        ["Necromancy", 2, "", 0],
-        ["Translocations", 10, "", 0],
-        ["Invocations", 10, "", 0],
-        ["Evocations", 8, "", 0],
-    ]
+    target = """\
+    | skill        | current | target | skill_bonus |
+    |--------------+---------+--------+-------------|
+    | Fighting     |      25 |     27 |           0 |
+    | Polearms     |      20 |        |           0 |
+    | Throwing     |      17 |        |           0 |
+    | Armour       |      18 |        |           0 |
+    | Dodging      |      10 |        |           0 |
+    | Shields      |      22 |        |           0 |
+    | Evocations   |      14 |        |           0 |
+    | Spellcasting |       0 |        |           0 |
+    | Invocations  |       0 |        |           0 |
+    """
 
-    configs = [
-        ("name", "dex", "evasion"),
-        ("XL", 22, 22),
-        ("STR", 45, 39),
-        ("DEX", 27, 27),
-        ("slaying", 8, 8),
-        ("brand", "flaming", "flaming"),
-        ("weapon_type", "demon_trident", "demon_trident"),
-        ("armour_type", "none", "none"),
-        ("aux_armour", "", ""),
-        ("shield_type", "tower", "tower"),
-        ("AC_multiplier", 1, 1),
-        ("AC_bonus", 0, 0),
-        ("EV_bonus", 5, 10),
-        ("SH_bonus", 7, 7),
-        ("HP_bonus", 0, 0),
-        ("HP_multiplier", 1, 1),
-        ("regen_bonus", 0, 0),
-        ("MP_regen_bonus", 0, 0),
-        ("MP_bonus", 0, 0),
-        ("body_size", "medium", "medium"),
-        ("SPARM_ARCHERY", 0, 0),
-        ("MUT_STURDY_FRAME", 0, 0),
-        ("spirit", 0, 0),
-        ("player_speed", 10, 10),
-        ("form", "none", "none"),
-    ]
-
-    configs = list(zip(*configs))
-
-    skill_df, result_df = find_best_skill(race, monster, target, configs)
+    target = CU.markdown_to_df(target)
+    configs = """\
+     | name      | XL | STR | DEX | slaying | brand | weapon_type | armour_type | aux_armour                | shield_type | AC_multiplier | AC_bonus | EV_bonus | SH_bonus | HP_bonus | HP_multiplier | regen_bonus | MP_regen_bonus | MP_bonus | body_size | SPARM_ARCHERY | MUT_STURDY_FRAME | spirit | player_speed | form | UC_base_damage |
+     |-----------+----+-----+-----+---------+-------+-------------+-------------+---------------------------+-------------+---------------+----------+----------+----------+----------+---------------+-------------+----------------+----------+-----------+---------------+------------------+--------+--------------+------+----------------|
+     | shielding | 25 |  36 |  15 |       5 | none  | glaive      | storm       | cloak gloves gloves boots | tower       |             1 |       21 |        5 |       12 |        0 |             1 |         0.8 |              0 |       -3 | medium    |             0 |                0 |      1 |           10 | none |              0 |
+     | vitality  | 25 |  36 |  15 |       5 | none  | glaive      | storm       | cloak gloves gloves boots | tower       |             1 |       21 |        5 |        4 |        0 |             1 |         2.4 |              0 |       -3 | medium    |             0 |                0 |      0 |           10 | none |              0 |
+    """
+    configs = CU.markdown_to_df(configs)
+    skill_df, result_df = find_best_skill(
+        race, monster, target, configs, num_swings=800
+    )
     print(skill_df.to_markdown(), end="\n" * 2)
     print(result_df.to_markdown())

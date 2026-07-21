@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import math
 import random
+import io
 import itertools as IT
 import numpy as np
 import scipy.stats as stats
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.interpolate as interpolate
-import random
 import crawl_tab as CT
 
 
@@ -450,3 +450,20 @@ def plot_differential(
             xlim=xlim,
             ylim=ylim,
         )
+
+
+def markdown_to_df(markdown):
+    df = pd.read_table(
+        io.StringIO(markdown),
+        sep="|",
+        skipinitialspace=True,
+        header=0,
+    )
+    df = df.iloc[1:]
+    df.columns = df.columns.str.strip()
+    for col in df:
+        try:
+            df[col] = df[col].str.strip()
+        except AttributeError:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df
