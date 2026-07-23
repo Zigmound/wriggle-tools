@@ -1056,7 +1056,7 @@ def attack_delay_with(you):
         raise NotImplementedError
     if not weap:
         # FIXME: Forms have not been implemented
-        attk_delay = 10 - you["skills"]["Unarmed Combat"] / 27 * 2
+        attk_delay = 10 - you["skills"]["Unarmed Combat"] * 10 / (27 * 2)
     else:
         wpn_skill = item_attack_skill(weap)
         # Cap skill contribution to mindelay skill, so that rounding
