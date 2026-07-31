@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-import itertools as IT
-import string
-import math
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 try:
-    from thewalrus2 import perm
+    from thewalrus import perm
 
 except ModuleNotFoundError:
 
