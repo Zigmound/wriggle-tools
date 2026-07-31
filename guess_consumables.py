@@ -3,6 +3,69 @@ import itertools as IT
 import string
 import math
 import pandas as pd
+import numpy as np
+
+try:
+    from thewalrus2 import perm
+
+except ModuleNotFoundError:
+
+    def perm(M):
+        """
+        Author: lesshaste
+        Date: 2017-03-09
+        https://github.com/scipy/scipy/issues/7151
+        """
+        n = M.shape[0]
+        d = np.ones(n)
+        j = 0
+        s = 1
+        f = np.arange(n)
+        v = M.sum(axis=0)
+        p = np.prod(v)
+        while j < n - 1:
+            v -= 2 * d[j] * M[j]
+            d[j] = -d[j]
+            s = -s
+            prod = np.prod(v)
+            p += s * prod
+            f[0] = 0
+            f[j] = f[j + 1]
+            f[j + 1] = j + 1
+            j = f[0]
+        return p / 2 ** (n - 1)
+
+
+def guess_consumables(qty, known_items, items, item_weights):
+    qty = np.asarray(qty)
+    items = np.asarray(items)
+    item_weights = np.asarray(item_weights)
+    mask = np.isin(items, known_items)
+    items = items[~mask]
+    item_weights = item_weights[~mask]
+    p = item_weights.astype("float")
+    p /= p.sum()
+
+    n = p.size
+    v = np.zeros(n)
+    k = qty.size
+    v[:k] = qty
+
+    M = p[:, None] ** v[None, :]
+    permM = perm(M)
+
+    uniq_qty, index = np.unique(qty, return_index=True)
+    prob = np.zeros((n, index.size))
+    for i in range(n):
+        for j_pos, j in enumerate(index):
+            row_mask = np.arange(n) != i
+            col_mask = np.arange(n) != j
+            Mij = M[np.ix_(row_mask, col_mask)]
+            prob[i, j_pos] = p[i] ** v[j] * perm(Mij) / permM
+    prob = prob * 100
+    df = pd.DataFrame(prob, index=items, columns=uniq_qty)
+
+    return df
 
 
 rarity = dict(
@@ -32,7 +95,7 @@ ITEM_RARITY = dict(
     ),
     scrolls=dict(
         identify="very_common",
-        teleportations="common",
+        teleportation="common",
         amnesia="uncommon",
         noise="uncommon",
         enchant_armour="uncommon",
@@ -54,48 +117,37 @@ ITEM_RARITY = dict(
 )
 
 
-def guess_consumables(quantity, known_potions, known_scrolls):
-    item_rarity = ITEM_RARITY.copy()
-    for pot in known_potions:
-        del item_rarity["potions"][pot]
-    for scroll in known_scrolls:
-        del item_rarity["scrolls"][scroll]
-    result = dict()
-    for item_type in quantity.keys():
-        qty = quantity[item_type]
-        irarity = {
-            item: rarity[item_type][kind]
-            for item, kind in item_rarity[item_type].items()
-        }
+potions, potion_weights = zip(
+    *[
+        (item, rarity["potions"][rarity_type])
+        for item, rarity_type in ITEM_RARITY["potions"].items()
+    ]
+)
+scrolls, scroll_weights = zip(
+    *[
+        (item, rarity["scrolls"][rarity_type])
+        for item, rarity_type in ITEM_RARITY["scrolls"].items()
+    ]
+)
 
-        names = list(string.ascii_letters[: len(qty)])
-        universe = dict()
-        for possibility in IT.permutations(irarity.keys(), len(qty)):
-            # compute the likelihood of being in this universe
-            universe[possibility] = math.prod(
-                [irarity[pot] ** num for pot, num, name in zip(possibility, qty, names)]
-            )
 
-        udf = pd.DataFrame(
-            [list(possibility) + [lval] for possibility, lval in universe.items()],
-            columns=list(names) + ["likelihood"],
-        )
-        udf["prob"] = udf["likelihood"] / sum(udf["likelihood"])
-        prob = pd.DataFrame()
-        for name, qi in zip(names, qty):
-            prob[f"{qi}{name}"] = udf.groupby(name)["prob"].sum()
-        prob.index.name = None
-        prob *= 100
-        result[item_type] = prob
-    return result
+def guess_potions(qty, known_items):
+    return guess_consumables(qty, known_items, potions, potion_weights)
+
+
+def guess_scrolls(qty, known_items):
+    return guess_consumables(qty, known_items, scrolls, scroll_weights)
 
 
 if __name__ == "__main__":
-    quantity = dict(potions=[1, 1, 2, 2], scrolls=[2, 1, 1])
-    known_potions = ["curing", "haste"]
-    known_scrolls = ["identify", "fear"]
-    probs = guess_consumables(quantity, known_potions, known_scrolls)
+    quantity = [1] * 7 + [2] * 5 + [3] * 5
+    known_potions = []
+    df = guess_potions(quantity, known_potions)
     print("Each columns represents an unknown item.", end="\n" * 2)
-    for item_type, prob in probs.items():
-        print(f"Probable identity of unknown {item_type}:")
-        print(prob.to_markdown(), end="\n" * 2)
+    print(df.to_markdown(), end="\n" * 2)
+
+    quantity = [1, 1, 1, 1, 5]
+    known_scrolls = ["identify", "fear"]
+    df = guess_scrolls(quantity, known_scrolls)
+    print("Each columns represents an unknown item.", end="\n" * 2)
+    print(df.to_markdown(), end="\n" * 2)
