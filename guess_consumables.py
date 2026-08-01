@@ -1,9 +1,18 @@
 #!/usr/bin/env python
+import itertools as IT
+import math
+import string
 import numpy as np
 import pandas as pd
 
 try:
     from thewalrus import perm
+
+    def guess_potions(qty, known_items):
+        return guess_consumables(qty, known_items, potions, potion_weights)
+
+    def guess_scrolls(qty, known_items):
+        return guess_consumables(qty, known_items, scrolls, scroll_weights)
 
 except ModuleNotFoundError:
 
@@ -32,11 +41,71 @@ except ModuleNotFoundError:
             j = f[0]
         return p / 2 ** (n - 1)
 
+    def guess_potions(qty, known_items):
+        if len(qty) < 6:
+            return guess_consumables_bruteforce(
+                qty, known_items, potions, potion_weights
+            )
+        else:
+            return guess_consumables(qty, known_items, potions, potion_weights)
+
+    def guess_scrolls(qty, known_items):
+        if len(qty) < 6:
+            return guess_consumables_bruteforce(
+                qty, known_items, scrolls, scroll_weights
+            )
+        else:
+            return guess_consumables(qty, known_items, scrolls, scroll_weights)
+
+
+def guess_consumables_bruteforce(qty, known_items, items, item_weights):
+    unknown_knowns = set(known_items).difference(items)
+    if any(unknown_knowns):
+        raise ValueError(f"unknown items: {unknown_knowns} (check spelling)")
+    items, item_weights = zip(
+        *[
+            (item, weight)
+            for item, weight in zip(items, item_weights)
+            if not item in known_items
+        ]
+    )
+    irarity = dict(zip(items, item_weights))
+
+    universe = dict()
+    for possibility in IT.permutations(items, len(qty)):
+        # compute the likelihood of being in this universe
+        universe[possibility] = math.prod(
+            [irarity[item] ** num for item, num in zip(possibility, qty)]
+        )
+    names = list(string.ascii_letters[: len(qty)])
+    udf = pd.DataFrame(
+        [list(possibility) + [lval] for possibility, lval in universe.items()],
+        columns=list(names) + ["likelihood"],
+    )
+    udf["prob"] = udf["likelihood"] / sum(udf["likelihood"])
+    prob = pd.DataFrame()
+    seen = set()
+    for name, qi in zip(names, qty):
+        if qi not in seen:
+            seen.add(qi)
+            prob[qi] = udf.groupby(name)["prob"].sum()
+
+    prob.index.name = None
+    prob *= 100
+    prob = prob.reindex(items)
+    return prob
+
 
 def guess_consumables(qty, known_items, items, item_weights):
     qty = np.asarray(qty)
     items = np.asarray(items)
     item_weights = np.asarray(item_weights)
+    known_items = np.asarray(known_items)
+    unknown_knowns = ~np.isin(known_items, items)
+    if unknown_knowns.any():
+        raise ValueError(
+            f"unknown items: {known_items[unknown_knowns]} (check spelling)"
+        )
     mask = np.isin(items, known_items)
     items = items[~mask]
     item_weights = item_weights[~mask]
@@ -76,7 +145,7 @@ ITEM_RARITY = dict(
         heal_wounds="common",
         enlightenment="uncommon",
         haste="uncommon",
-        lignify="uncommon",
+        lignification="uncommon",
         attraction="uncommon",
         moonshine="uncommon",
         might="uncommon",
@@ -128,16 +197,8 @@ scrolls, scroll_weights = zip(
 )
 
 
-def guess_potions(qty, known_items):
-    return guess_consumables(qty, known_items, potions, potion_weights)
-
-
-def guess_scrolls(qty, known_items):
-    return guess_consumables(qty, known_items, scrolls, scroll_weights)
-
-
 if __name__ == "__main__":
-    quantity = [1] * 7 + [2] * 5 + [3] * 5
+    quantity = [1, 1, 2, 3, 1]
     known_potions = []
     df = guess_potions(quantity, known_potions)
     print("Each columns represents an unknown item.", end="\n" * 2)
