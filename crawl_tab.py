@@ -1077,7 +1077,8 @@ def attack_delay_with(you):
     attk_delay = max(attk_delay, 3)
 
     attk_delay += adjusted_shield_penalty(you, DELAY_SCALE) / DELAY_SCALE
-
+    if weap == "quick_blade":
+        attk_delay /= 2
     # FIXME?: Finesse has not been implemented
 
     return max((attk_delay * you["player_speed"] / 10), 1)
@@ -1147,7 +1148,7 @@ def player_mp_regen(you):
     # DUR_OOZE_REGEN not implemented
     # jelly_regen not implemented
 
-    regen_amount += you["MP_regen_bonus"]
+    regen_amount += you["MP_regen_bonus"] * 100
 
     return regen_amount / 100
 
@@ -1393,7 +1394,7 @@ params["orb guardian"] = dict(
 )
 
 params["boss"] = dict(
-    damage=(300,),
+    damage=(80,),
     HD=30,
     skilled=True,
     AC=30,
