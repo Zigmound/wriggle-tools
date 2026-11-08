@@ -412,19 +412,36 @@ def HP_instances(attacker, defender, size, check_for_death=True):
     except TypeError:
         damage += damage_instances(attacker, defender, size)
 
-    mask = damage > 0
-    # Reduce damage by Regen
+
+    # Reduce damage by regen
+    """
+    Below is a gross approximation of how regen really works.
+    It assumes that the damage done is great enough that the defender's HP never
+    returns to full HP (at which point regen would stop).  Thus, once regen starts,
+    it never stops.
+
+    I think this assumption is okay as long as the defender's defenses do not totally
+    outclass the attacker's attack.
+
+    AFAICS, handling regen without this assumption requires a python loop.  Given
+    the number of iterations I'd like to perform, I think a python loop here would
+    be too slow.
+    """
+
     if "regen" not in defender and "HD" in defender:
         defender["regen"] = HD_to_regen(defender["HD"])
-
-    damage -= mask * defender["regen"] * attacker.get("weapon_delay", 1.0)
-
-    # Make sure damage is greater than or equal 0
-    damage = np.maximum(damage, 0)
+    regen_amount = defender["regen"] * attacker.get("weapon_delay", 1.0)
+    regen_start_index = np.argmax(damage > 0, axis=1)
+    INDEX = np.tile(np.arange(damage.shape[1]), (damage.shape[0], 1))
+    
+    damage -= regen_amount * (INDEX >= regen_start_index).astype(int)
 
     # For each row (i.e. for each simulation), calculate the cumulative damage amounts
     total_damage = damage.cumsum(axis=1)
 
+    # Make sure total damage is greater than or equal 0
+    total_damage = np.maximum(total_damage, 0)
+    
     # HP is an array representing the defender's hit points after taking damage
     HP = defender["HP"] - total_damage
 
@@ -521,6 +538,7 @@ def sample_hit_outcomes(to_hit, EV, size):
     mask = np.random.randint(100, size=size) < MIN_HIT_MISS_PERCENTAGE
     auto_hit_miss = np.random.randint(2, dtype=bool, size=mask.sum())
     result[mask] = auto_hit_miss
+    # print(f"hit rate: {result.mean():.1%}")
     return result
 
 
