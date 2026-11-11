@@ -17,8 +17,13 @@ def sim(attacker, defender):
     
     if attacker["brand"] == "antimagic":
         DURATION = np.random.randint(low=0, high=(CU.div_rand_round(POWER, defender["HD"]) + 1), size=POWER.shape) * BASELINE_DELAY
-        DURATION = DURATION.cumsum(axis=1)
-        DURATION -= (DURATION > 0).astype(int).cumsum(axis=1) - (DURATION > 0).astype(int)
+        for i in range(1, num_swings):
+            OLD_DURATION = DURATION[:, i - 1].copy()
+            # decay the duration
+            OLD_DURATION[OLD_DURATION > 0] -= int(attacker["weapon_delay"] * BASELINE_DELAY)
+            # durations are always positive
+            OLD_DURATION[OLD_DURATION < 0] = 0
+            DURATION[:, i] += OLD_DURATION
         PROB_FAIL = 1 - (4 * BASELINE_DELAY) / (4 * BASELINE_DELAY + DURATION)
         MISCAST |=  np.random.random(PROB_FAIL.shape) < PROB_FAIL
         # print(f"DEBUG: MISCAST rate after antimagic {MISCAST.mean():.1%}")
@@ -26,6 +31,13 @@ def sim(attacker, defender):
     TOTAL_DAMAGE = DAMAGE.cumsum(axis=1)
 
     HP = defender["HP"] - TOTAL_DAMAGE
+
+    # handle regen
+    for i in range(num_swings):
+        hpi = HP[:, i]
+        hpi[hpi < defender["HP"]] += int(CT.HD_to_regen(defender["HD"]) * attacker["weapon_delay"] * BASELINE_DELAY)
+        hpi[hpi > defender["HP"]] = defender["HP"]
+
     if (HP > 0)[:, -1].any():
         raise TooFewSwings("Defender did not die. You need to increase the number of swings")
 
